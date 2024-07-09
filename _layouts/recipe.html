@@ -1,0 +1,13 @@
+---
+layout: default
+---
+<div class="recipe">
+  <h1>Problem</h1>
+    {% contentblock problem %}
+  <h1>Solution</h1>
+    {% contentblock solution %}
+    {% ifhascontent discussion %}
+  <h1>Discussion</h1>
+      {% contentblock discussion %}
+    {% endifhascontent %}
+</div>

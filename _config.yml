@@ -1,11 +1,17 @@
 title: Brian's Qubes Cookbook
 description: Brian's recipes for Qubes OS
 theme: just-the-docs
+timezone: America/New_York
+
+strict_front_matter: true
 
 url: https://bcduggan.github.io/brians-qubes-cookbook
 
 aux_links:
   Template Repository: https://github.com/bcduggan/brians-qubes-cookbook
+
+qubes_namespace: brian
+qubes_user: user
 
 collections:
   conventions:
