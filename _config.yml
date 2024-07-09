@@ -6,3 +6,18 @@ url: https://bcduggan.github.io/brians-qubes-cookbook
 
 aux_links:
   Template Repository: https://github.com/bcduggan/brians-qubes-cookbook
+
+collections:
+  conventions:
+    permalink: "/:collection/:path"
+    output: true
+  recipes:
+    permalink: "/:collection/:path"
+    output: true
+
+just_the_docs:
+  collections:
+    conventions:
+      name: "Conventions"
+    recipes:
+      name: "Recipes"
