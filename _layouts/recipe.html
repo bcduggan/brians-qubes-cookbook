@@ -1,10 +1,16 @@
 ---
 layout: default
 ---
+{% include lookup-template.md qube=page.qube %}
 <div class="recipe">
   <h1>Problem</h1>
     {% contentblock problem %}
   <h1>Solution</h1>
+    {% if template %}
+    <h2>
+      <a href="{{ template-page }}">Create {{ template }}</a>
+    </h2>
+    {% endif %}
     {% contentblock solution %}
     {% ifhascontent discussion %}
   <h1>Discussion</h1>

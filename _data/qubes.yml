@@ -1,19 +1,28 @@
 dom0:
   user: brian
+  os: fedora
 fedora-39-minimal:
   fromrepo: qubes-templates-itl
+  os: fedora
 debian-12-minimal:
   fromrepo: qubes-templates-itl
-fedora-39-adminvm:
+  os: debian
+fedora-39-admin:
   original: fedora-39-minimal
+  os: fedora
 debian-12-home:
   original: debian-12-minimal
-sys-adminvm:
-  template: fedora-39-adminvm
-brian-adminvm-dvm:
-  template: fedora-39-adminvm
+  os: debian
+sys-admin:
+  template: fedora-39-admin
+  class: AppVM
+  label: purple
+sys-policy:
+  template: fedora-39-admin
+brian-admin-dvm:
+  template: fedora-39-admin
   template_for_dispvms: true
-brian-adminvm:
+brian-admin:
   template: brian-adminvm-dvm
 brian-gnupg:
   template: debian-12-home

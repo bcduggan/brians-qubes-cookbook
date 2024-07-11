@@ -1,5 +1,5 @@
-Install template **{{ include.template }}**:
+## Install template **{{ include.template }}** using **{{ include.adminvm }}**
 
-```bash
-{{ include.adminvm }}$ qvm-template install --verbose {{ include.template }}
-```
+{% highlight bash %}
+qvm-template install --verbose {{ include.template }}
+{% endhighlight %}

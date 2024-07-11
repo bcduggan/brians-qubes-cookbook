@@ -14,3 +14,17 @@ services:
       - ".:/var/local/jekyll"
     ports:
       - "4000:4000"
+  yamale:
+    build:
+      context: "."
+      dockerfile_inline: |
+        FROM python:3.12-bookworm
+        RUN adduser --uid 1000 yamale
+        RUN python3 -m pip install --user pipx
+        RUN python3 -m pipx install --global yamale
+    entrypoint: /usr/local/bin/yamale
+    user: yamale
+    working_dir: "/work"
+    command: yamale
+    volumes:
+      - "${PWD}:/work"

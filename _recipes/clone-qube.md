@@ -1,4 +1,5 @@
 ---
+nav_order: 2
 title: Clone a qube
 layout: recipe
 adminvm: dom0

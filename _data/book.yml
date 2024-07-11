@@ -1,0 +1,74 @@
+qubes:
+  fedora-39-minimal:
+    class: TemplateVM
+    fromrepo: qubes-templates-itl
+    os: fedora
+    label: black
+  debian-12-minimal:
+    class: TemplateVM
+    fromrepo: qubes-templates-itl
+    os: debian
+    label: black
+  fedora-39-admin:
+    class: TemplateVM
+    original: fedora-39-minimal
+    label: black
+  debian-12-home:
+    class: TemplateVM
+    original: debian-12-minimal
+    label: black
+  sys-admin:
+    class: AppVM
+    template: fedora-39-admin
+    label: purple
+  sys-policy:
+    class: AppVM
+    template: fedora-39-admin
+    label: purple
+  brian-admin:
+    class: AppVM
+    template: fedora-39-admin
+    label: purple
+  brian-gnupg-dvm:
+    class: AppVM
+    template: debian-12-home
+    template_for_dispvms: true
+    label: blue
+  brian-gnupg:
+    class: AppVM
+    template: brian-gnupg-dvm
+    servicevm: true
+recipes:
+  create-admin-global-qube:
+    template:
+      packages:
+        fedora:
+          # qvm-* tools
+          - qubes-core-admin-client
+          # qubesctl
+          - qubes-mgmt-salt-admin-tools
+    policy:
+      - name: "30-{{ page.qube }}"
+        content: |
+          admin.vm.Create.TemplateVM    *  {{ page.qube }}  @adminvm                         allow  target=dom0
+          admin.vm.Create.AppVM         *  {{ page.qube }}  @adminvm                         allow  target=dom0
+          admin.vm.Create.StandaloneVM  *  {{ page.qube }}  @adminvm                         allow  target=dom0
+          admin.vm.Remove               *  {{ page.qube }}  @tag:created-by-{{ page.qube }}  allow  target=dom0
+          qubes.Filecopy                *  {{ page.qube }}  @tag:created-by-{{ page.qube }}  allow
+          qubes.WaitForSession          *  {{ page.qube }}  @tag:created-by-{{ page.qube }}  allow
+          qubes.VMShell                 *  {{ page.qube }}  @tag:created-by-{{ page.qube }}  allow
+      - name: "include/admin-global-rwx"
+        content: |
+          {{ page.qube }}  @adminvm                         allow  target=dom0
+          {{ page.qube }}  @tag:created-by-{{ page.qube }}  allow  target=dom0
+          {{ page.qube }}  {{ page.qube }}                  allow  target=dom0
+  create-admin-policy-qube:
+    template:
+      packages:
+        fedora:
+          # qubes-policy* tools
+          - qubes-core-qrexec
+    policy:
+      - name: "include/admin-policy-rwx"
+        content: |
+          {{ page.qube }}  @adminvm  allow  target=dom0

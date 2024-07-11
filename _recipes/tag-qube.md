@@ -1,4 +1,5 @@
 ---
+nav_order: 1
 title: Tag a qube
 layout: recipe
 adminvm: dom0

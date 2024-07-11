@@ -1,4 +1,5 @@
 ---
+nav_order: 0
 title: Install a template
 layout: recipe
 adminvm: dom0
