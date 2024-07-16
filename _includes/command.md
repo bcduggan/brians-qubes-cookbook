@@ -1,6 +1,3 @@
-Run on {{ include.qube }}:
+{% highlight bash %}
 
-```bash
-# Run on {{ include.qube }}:
-{{ include.command }}
-```
+{% endhighlight %}

@@ -6,4 +6,4 @@
 qvm-clone --verbose {{ include.original }} {{ include.clone }}
 ```
 
-{% include solutions/tag-qube.md adminvm=include.adminvm qube=include.clone tag=tag %}
+{% include qvm/tag.md adminvm=include.adminvm qube=include.clone tag=tag %}

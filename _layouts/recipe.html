@@ -5,10 +5,7 @@ layout: default
   <h1>Problem</h1>
     {% contentblock problem %}
   <h1>Solution</h1>
-    <h2>Source qube</h2>
-    {% include solution.md adminvm=page.adminvm qube=page.source_qube recipe=page.source_recipe %}
-    <h2>Target qube</h2>
-    {% include solution.md adminvm=page.adminvm qube=page.target_qube recipe=page.target_recipe %}
+    {% contentblock solution %}
   <h1>Discussion</h1>
     {% contentblock discussion %}
 </div>
