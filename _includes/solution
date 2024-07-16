@@ -1,0 +1,7 @@
+{% assign recipe = site.data.recipes[include.recipe] %}
+{% assign template_recipe = site.data.recipes[recipe.template_recipe] %}
+{% assign template = site.data.qubes[include.qube].template %}
+{% if template %}
+  {% include solution adminvm=include.adminvm qube=site.data.book.qubes[include.qube].template recipe=template_recipe %}
+{% endif %}
+{% include recipes/{{ recipe }} adminvm=include.adminvm qube=include.qube %}

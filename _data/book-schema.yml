@@ -1,9 +1,0 @@
-qubes: map(required=True, any(include('template))
-recipes: map(required=True, 
----
-TemplateVM:
-  class: TemplateVM
-  fromrepo: include('hyphenated-regex')
-AppVM:
----
-hyphenated-ascii: regex()

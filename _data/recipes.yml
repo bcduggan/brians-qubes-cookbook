@@ -1,34 +1,63 @@
-create-admin-global-qube:
-  template:
-    packages:
-      fedora:
-        # qvm-* tools
-        - qubes-core-admin-client
-        # qubesctl
-        - qubes-mgmt-salt-admin-tools
-  policy:
-    - name: "30-{{ page.qube }}"
-      content: |
-        admin.vm.Create.TemplateVM    *  {{ page.qube }}  @adminvm                         allow  target=dom0
-        admin.vm.Create.AppVM         *  {{ page.qube }}  @adminvm                         allow  target=dom0
-        admin.vm.Create.StandaloneVM  *  {{ page.qube }}  @adminvm                         allow  target=dom0
-        admin.vm.Remove               *  {{ page.qube }}  @tag:created-by-{{ page.qube }}  allow  target=dom0
-        qubes.Filecopy                *  {{ page.qube }}  @tag:created-by-{{ page.qube }}  allow
-        qubes.WaitForSession          *  {{ page.qube }}  @tag:created-by-{{ page.qube }}  allow
-        qubes.VMShell                 *  {{ page.qube }}  @tag:created-by-{{ page.qube }}  allow
+admin_qvm_template:
+  packages:
+    fedora:
+      # qvm-* tools
+      - qubes-core-admin-client
+admin_salt_tempate:
+  packages:
+    fedora:
+      # qubesctl
+      - qubes-mgmt-salt-admin-tools
+admin_policy_template:
+  packages:
+    fedora:
+      # qubes-policy* tools
+      - qubes-core-qrexec
+admin_qvm_global:
+  template_recipe: admin_qvm_template
+  policies:
     - name: "include/admin-global-rwx"
       content: |
-        {{ page.qube }}  @adminvm                         allow  target=dom0
-        {{ page.qube }}  @tag:created-by-{{ page.qube }}  allow  target=dom0
-        {{ page.qube }}  {{ page.qube }}                  allow  target=dom0
-
-create-admin-policy-qube:
-  template:
-    packages:
-      fedora:
-        # qubes-policy* tools
-        - qubes-core-qrexec
-  policy:
+        # Grant %qube% global access to adminvm services
+        %qube%  @adminvm                allow  target=dom0
+        %qube%  @tag:created-by-%qube%  allow  target=dom0
+        %qube%  %qube%                  allow  target=dom0
+    - name: "30-%qube%"
+      content: |
+        admin.vm.Create.TemplateVM    *  %qube%  @adminvm                allow  target=dom0
+        admin.vm.Create.AppVM         *  %qube%  @adminvm                allow  target=dom0
+        admin.vm.Create.StandaloneVM  *  %qube%  @adminvm                allow  target=dom0
+        admin.vm.Remove               *  %qube%  @tag:created-by-%qube%  allow  target=dom0
+        qubes.Filecopy                *  %qube%  @tag:created-by-%qube%  allow
+        qubes.WaitForSession          *  %qube%  @tag:created-by-%qube%  allow
+        qubes.VMShell                 *  %qube%  @tag:created-by-%qube%  allow
+admin_qvm_local:
+  template_recipe: admin_qvm_template
+  policies:
+    - name: "include/admin-global-ro"
+      content: |
+        %qube%  @adminvm                allow  target=dom0
+        %qube%  @tag:created-by-%qube%  allow  target=dom0
+        %qube%  %qube%                  allow  target=dom0
+    - name: "include/admin-local-ro"
+      content: |
+        %qube%  @adminvm                allow  target=dom0
+    - name: "include/admin-local-rwx"
+      content: |
+        %qube%  @tag:created-by-%qube%  allow  target=dom0
+        %qube%  %qube%                  allow  target=dom0
+    - name: "30-%qube%"
+      content: |
+        admin.vm.Create.TemplateVM    *  %qube%  @adminvm                allow  target=dom0
+        admin.vm.Create.AppVM         *  %qube%  @adminvm                allow  target=dom0
+        admin.vm.Create.StandaloneVM  *  %qube%  @adminvm                allow  target=dom0
+        admin.vm.Remove               *  %qube%  @tag:created-by-%qube%  allow  target=dom0
+        qubes.Filecopy                *  %qube%  @tag:created-by-%qube%  allow
+        qubes.WaitForSession          *  %qube%  @tag:created-by-%qube%  allow
+        qubes.VMShell                 *  %qube%  @tag:created-by-%qube%  allow
+admin_policy:
+  template_recipe: admin
+  policies:
     - name: "include/admin-policy-rwx"
       content: |
-        {{ page.qube }}  @adminvm  allow  target=dom0
+        %qube%  @adminvm  allow  target=dom0
