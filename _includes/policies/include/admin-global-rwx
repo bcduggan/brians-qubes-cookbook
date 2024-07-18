@@ -1,0 +1,3 @@
+{{ include.qube }} @adminvm allow target=dom0
+{{ include.qube }} @tag:created-by-{{ include.qube }} allow target=dom0
+{{ include.qube }} {{ include.qube }} allow target=dom0

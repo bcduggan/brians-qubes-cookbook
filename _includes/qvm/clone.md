@@ -1,9 +1,7 @@
 {%- assign tag = "cloned-from-" | append: include.original -%}
-## Clone **{{ include.original }}** as **{{ include.clone }}** through **{{ include.adminvm }}**
+{% capture command %}qvm-clone --verbose {{ include.original }} {{ include.clone }}{% endcapture %}
+Clone **{{ include.original }}** as **{{ include.clone }}** through **{{ include.adminvm }}**:
 
-```bash
-# On {{ include.adminvm }}:
-qvm-clone --verbose {{ include.original }} {{ include.clone }}
-```
+{% include cli.md host=include.adminvm command=command %}
 
 {% include qvm/tag.md adminvm=include.adminvm qube=include.clone tag=tag %}

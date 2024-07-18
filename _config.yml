@@ -9,3 +9,19 @@ url: https://bcduggan.github.io/brians-qubes-cookbook
 
 aux_links:
   Brian's Qubes Cookbook on GitHub: https://github.com/bcduggan/brians-qubes-cookbook
+
+#color_scheme: dark
+
+callouts:
+  command:
+    color: green
+  file:
+    color: yellow
+  template:
+    title: Template qube
+    color: grey-dk 
+  app:
+    title: App qube
+    color: grey-lt
+  policy:
+    color: purple

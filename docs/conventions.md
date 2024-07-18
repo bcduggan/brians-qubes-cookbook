@@ -1,7 +1,7 @@
 ---
+nav_order: 1
 title: Conventions
 layout: default
-nav_order: 1
 slug: conventions
 ---
 
