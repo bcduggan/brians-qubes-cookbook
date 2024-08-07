@@ -5,7 +5,7 @@
 Edit policy **{{ policy[0] }}** through **{{ include.adminvm }}** with...
 
 
-  {% include cli.md host=include.adminvm command=command %}
+  {% include shell.md host=include.adminvm command=command %}
 
 
 

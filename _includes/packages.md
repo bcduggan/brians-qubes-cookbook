@@ -7,4 +7,4 @@ Install these packages on **{{ include.host }}**...
 - {{ package }}
 {% endfor %}
 with:
-{% include cli.md host=include.host command=command %}
+{% include shell.md host=include.host command=command %}

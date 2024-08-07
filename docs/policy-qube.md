@@ -3,14 +3,6 @@ nav_order: 2
 title: Policy qube
 slug: policy-qube
 layout: recipe
-qubes:
-  adminvm: dom0
-  client:
-    app: sys-policy
-    template: fedora-39-xfce
-policies:
-  include/admin-policy-rwx: |-
-    sys-policy  @adminvm  allow  target=dom0
 ---
 
 {% contentfor problem %}
@@ -18,24 +10,53 @@ You want to grant RPC policy edit privileges to a non-**dom0** qube.
 {% endcontentfor %}
 
 {% contentfor solution %}
+## Provision
+{: .d-inline-block }
+sys-policy
+{: .label .label-purple }
 
-## Create policy app qube
-
-{% include qvm/create.md adminvm=page.qubes.adminvm qube=page.qubes.client.app template=page.qubes.client.template class="AppVM" label="purple" %}
-{% include qvm/prefs.md adminvm=page.qubes.adminvm qube=page.qubes.client.app pref="netvm" value="None" %}
-
-## Grant qube permissions to edit RPC policies
-
-{% include policies.md adminvm=page.qubes.adminvm policies=page.policies %}
+{: .white-title }
+> dom0
+> 
+> Create offline policy qube
+>
+> {: .white-title }
+>> /usr/bin/bash
+```bash
+qvm-create --verbose --template fedora-39-xfce --class AppVM --label purple sys-policy
+qvm-prefs --verbose --set sys-policy netvm None
+```
+>
+> Grant offline policy qube permissions to edit RPC policies:
+> 
+> {: .white-title }
+>> /usr/bin/bash
+```bash
+qubes-policy-editor include/admin-policy-rwx
+```
+> 
+> Add this line to _include/admin-policy-rwx_:
+> 
+> {: .white-title }
+>> include/admin-policy-rwx
+```
+sys-policy  @adminvm  allow  target=dom0
+```
 
 ## Test
 
-Use **qvm** tools to administer qubes on **{{ page.qubes.client.app }}**. For example:
-
-{% include cli.md host=page.qubes.client.app command="qubes-policy --list" %}
-
+{: .purple-title }
+> sys-policy
+>
+> Use **qubes-policy** tools to administer qubes on **sys-policy**. For example:
+> 
+> {: .purple-title }
+>> /usr/bin/bash
+```bash
+qubes-policy --list
+```
 {% endcontentfor %}
 
 {% contentfor discussion %}
-We just made and admin qube!
+Use **qubes-policy** tools on **sys-policy** to administer Qrexec policies.
 {% endcontentfor %}

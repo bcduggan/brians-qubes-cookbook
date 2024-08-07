@@ -1,3 +1,5 @@
+dom0:
+  label: white
 fedora-39-minimal:
   class: TemplateVM
   fromrepo: qubes-templates-itl

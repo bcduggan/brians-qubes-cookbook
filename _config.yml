@@ -12,16 +12,24 @@ aux_links:
 
 #color_scheme: dark
 
+callouts_opacity: 0.5
 callouts:
-  command:
-    color: green
-  file:
-    color: yellow
-  template:
-    title: Template qube
-    color: grey-dk 
-  app:
-    title: App qube
-    color: grey-lt
-  policy:
+  white:
+    color: white
+    opacity: 1
+  black:
+    color: grey-dk
+  purple:
     color: purple
+  blue:
+    color: blue
+  gray:
+    color: grey-lt
+  green:
+    color: green
+  yellow:
+    color: yellow
+  orange:
+    color: orange
+  red:
+    color: red

@@ -1,0 +1,102 @@
+// All labels
+.label:not(g) {
+  text-transform: none;
+
+}
+
+// White label with a black border
+.label-white:not(g) {
+  background-color: $white-000;
+  color: black;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-left-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+  border-right-width: 2px;
+  border-right-style: solid;
+}
+
+.label-black:not(g) {
+  background-color: $grey-dk-100;
+}
+
+.label-gray:not(g) {
+  background-color: $grey-lt-300;
+}
+
+.label-orange:not(g) {
+  background-color: $orange-300;
+}
+
+blockquote {
+  &.white-title,
+  &.black-title,
+  &.purple-title,
+  &.gray-title,
+  &.yellow-title,
+  &.orange-title,
+  &.red-title > {
+    p:first-child {
+      text-transform: none;
+      font-size: 1em;
+    }
+  }
+}
+
+figcaption {
+  background: darkgray;
+  color: white;
+  text-align: left;
+  font-size: 0.75rem;
+  font-style: italic;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+blockquote.white-title > p:first-child {
+  color: gray;
+}
+
+div.language-console > ::after {
+  content: "console";
+  border: 10px solid #900;
+}
+
+.no-line-numbers .table-wrapper td.rouge-gutter {
+  width: 0rem;
+  padding-right: 0rem;
+  pre {
+    display: none;
+  }
+}
+
+// // dom0-dom0 subcallout title
+// blockquote.dom0-title > p:first-child {
+//   color: gray;
+//   text-transform: none;
+// }
+// 
+// // dom0-dom0 subcallout
+// blockquote.dom0 > .dom0-title {
+//   font-weight: inherit;
+//   font-size: inherit;
+// }
+// 
+// // dom0-dom0 subcallout code block
+// blockquote.dom0 > .dom0-title {
+//   text-transform: none;
+// }
+// 
+// blockquote.purple-title > p:first-child {
+//   /* color: black; */
+//   font-size: 1em;
+//   text-transform: none;
+// }
+// 
+// blockquote.black-title > p:first-child {
+//   /* color: black; */
+//   font-size: 1em;
+//   text-transform: none;
+// }
