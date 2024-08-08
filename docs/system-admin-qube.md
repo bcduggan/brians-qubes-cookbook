@@ -20,92 +20,68 @@ You want to grant system-wide qube administration privileges to a non-**dom0** q
 
 {% contentfor solution %}
 ## Provision
-{: .d-inline-block }
-fedora-39-admin
-{: .label .label-black }
-sys-admin
-{: .label .label-purple }
 
-{: .white-title }
-> dom0
-> 
-> Create admin template and system admin app qube.
-> 
-> {: .white-title }
->> /usr/bin/bash
-```bash
-{% include qvm/clone.md adminvm=page.qubes.adminvm original="fedora-39-xfce" clone=page.qubes.client.template -%}
-{% include qvm/create.md adminvm=page.qubes.adminvm template="fedora-39-admin" label="purple" class="AppVM" qube=page.qubes.client.app -%}
-qvm-prefs --verbose --set sys-admin netvm None
-```
+Create admin template, **fedora-39-admin**.
 
-## Configure client template
+{% qubecode dom0 console %}
+$ qvm-clone --verbose fedora-39-xfce fedora-39-admin
+{% endqubecode %}
 
-{: .black-title }
-> fedora-39-admin
-> 
-> Install the following packages:
-> 
-> {: .black-title }
->> /usr/bin/bash
-```bash
-dnf install --assumeyes qubes-core-admin-client
-```
+Add provenance tag to **fedora-39-admin**.
 
-## Update policies
+{% qubecode dom0 console  %}
+$ qvm-tags fedora-39-admin add --verbose cloned-from-fedora-39-xfce 
+{% endqubecode %}
 
-{: .purple-title }
-> sys-policy
-> 
-> Allow **sys-policy** to use all global admin RPCs on all qubes, including **dom0**, through **dom0**:
-> 
-> {: .purple-title }
->> /usr/bin/bash
-```bash
-qubes-policy-editor include/admin-global-rwx
-```
-> 
-> Add these lines to _include/admin-global-rwx_:
-> 
-> {: .white-title }
->> include/admin-global-rwx
->>
-```
+Create **sys-admin**.
+
+{% qubecode dom0 console  %}
+$ qvm-create --class AppVM --template fedora-39-xfce --label purple fedora-39-admin
+{% endqubecode %}
+
+Disable network access on **sys-admin**
+
+{% qubecode dom0 console  %}
+$ qvm-prefs --verbose --set sys-admin netvm None
+{% endqubecode %}
+ 
+
+## Client
+
+### Template
+
+Install the following packages on **fedora-39-admin**:
+
+- qubes-core-admin-client
+
+{% qubecode fedora-39-admin console %}
+$ dnf install --assumeyes qubes-core-admin-client
+{% endqubecode %}
+
+## Policies
+
+Allow **sys-policy** to use all global admin RPCs on all qubes, including **dom0**, through **dom0**.
+
+{% qubecode sys-policy policy-include edit_command="$ qubes-policy-editor include/admin-global-rwx" caption="Add to include/admin-global-rwx" %}
 sys-admin  @adminvm  allow  target=dom0
 sys-admin  @anyvm    allow  target=dom0
-```
-> 
->
-> Allow **sys-policy** to use all local admin RPCs on all qubes, including **dom0**, through **dom0**:
-> 
-> {: .purple-title }
->> /usr/bin/bash
-```bash
-qubes-policy-editor include/admin-local-rwx
-```
-> 
-> Add these lines to _include/admin-local-rwx_:
-> 
-> {: .white-title }
->> include/admin-local-rwx
->>
-```
+{% endqubecode %}
+
+Allow **sys-policy** to use all local admin RPCs on all qubes, including **dom0**, through **dom0**:
+
+{% qubecode sys-policy policy-include edit_command="$ qubes-policy-editor include/admin-local-rwx" caption="Add to include/admin-local-rwx" %}
 sys-admin  @adminvm  allow  target=dom0
 sys-admin  @anyvm    allow  target=dom0
-```
+{% endqubecode %}
 
 ## Test
 
-{: .purple-title }
-> sys-admin
-> 
-> Use _qvm_ tools to administer qubes on **{{ page.qubes.client.app }}**:
-> 
-> {: .purple-title }
->> /usr/bin/bash
-```bash
-qvm-ls --all
-```
+Use _qvm_ tools to administer qubes on **{{ page.qubes.client.app }}**:
+
+{% qubecode sys-admin console %}
+$ qvm-ls --all
+{% endqubecode %}
+
 {% endcontentfor %}
 
 {% contentfor discussion %}

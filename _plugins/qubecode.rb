@@ -37,32 +37,30 @@ module BQC
         suffix = context["highlighter_suffix"] || ""
         code = super.to_s.gsub(LEADING_OR_TRAILING_LINE_TERMINATORS, "")
 
-        formatter = Rouge::Formatters::HTMLLineTable.new(Rouge::Formatters::HTML.new)
-        lexer = Rouge::Lexer.find_fancy(@language, code) || Rouge::Lexers::PlainText
-        content = formatter.format(lexer.lex(code))
+        content = figure(format(code))
+
+        if @params["edit_command"]
+          content = figure(
+            format(
+              @params["edit_command"],
+              language="console"
+            ),
+            caption="Editor command"
+          ) + content
+        end
 
         qube_label = context.registers[:site].data["qubes"][@qube]["label"]
 
         blockquote_class_attribute = ["#{qube_label}-title"]
-        figure_class_attribute = ["highlight"]
 
         if @params["id"]
           blockquote_class_attribute.append(@params["id"])
         end
 
-        if not @params["line_numbers"]
-          figure_class_attribute.append("no-line-numbers")
-        end
-
         html = <<~HTML.gsub(/\s*\n\s*/, "")
           <blockquote class="#{blockquote_class_attribute.join(" ")}">
             <p>#{@qube}</p>
-            <figure class="#{figure_class_attribute.join(" ")}">
-              %s
-              <figcaption>
-                %s
-              </figcaption>
-            </figure>
+            %s
           </blockquote>
         HTML
 
@@ -121,6 +119,32 @@ module BQC
           @params[key] = value
         end
       end
+
+      def format(code, language=@language)
+        formatter = Rouge::Formatters::HTMLLineTable.new(Rouge::Formatters::HTML.new)
+        lexer = Rouge::Lexer.find_fancy(language, code) || Rouge::Lexers::PlainText
+        formatter.format(lexer.lex(code))
+      end
+
+      def figure(content, caption=@params["caption"])
+        figure_class_attribute = ["highlight"]
+
+        if not @params["line_numbers"]
+          figure_class_attribute.append("no-line-numbers")
+        end
+
+        html = <<~HTML.gsub(/\s*\n\s*/, "")
+          <figure class="#{figure_class_attribute.join(" ")}">
+            %s
+            <figcaption>
+              %s
+            </figcaption>
+          </figure>
+        HTML
+
+        sprintf(html, content, caption)
+      end
+      
     end
   end
 end 
