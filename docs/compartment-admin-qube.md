@@ -18,57 +18,28 @@ You want to grant local qube administration privileges to a non-**dom0** qube.
 
 {% contentfor solution %}
 
-{% qubecode dom0 console %}
-$ mkdir --parents /run/user/1000/demo
-{% endqubecode %}
-
-{% html blockquote id="highlander" %}
-I feel heard.
-{% endhtml %}
-
-{% blockquote id="highlander2" %}
-I feel heard.
-{% endblockquote %}
-
-{% callout black id="highlander3" %}
-I feel alive.
-{% endcallout %}
-
 {% qubeconsole dom0 %}
 $ ls -l /
 {% endqubeconsole %}
 
+{% qubepolicy sys-policy /path/to/file %}
+thing1 thing2 thing3
+thing4 thing5 thing6
+{% endqubepolicy %}
+
 ## Provision
 
-List files:
-
-{% qubecode dom0 console %}
-$ ls -l
-{% endqubecode %}
-
-Update policy:
-
-{: .white-title }
-> dom0
-```console
-$ ls -l
-```
-
-{: .white-title }
-> dom0
-```
+{% qubepolicy dom0 include/admin-global-rwx %}
 sys-admin  @adminvm                   allow  target=dom0
 sys-admin  @tag:created-by-sys-admin  allow  target=dom0
 sys-admin  sys-admin                  allow  target=dom0
-```
-{: .policy-include }
-{: data-caption="include/admin-global-rwx" }
+{% endqubepolicy %}
 
-
-
-## Provision
-acme-admin
-{: .label .label-purple }
+{% qubeconsole dom0 %}
+$ qvm-clone --verbose fedora-39-xfce fedora-39-admin
+$ qvm-tags fedora-39-admin add --verbose cloned-from-fedora-39-xfce
+$ qvm-create --verbose --template fedora-39-admin --class AppVM --label purple fedora-39-admin
+{% endqubeconsole %}
 
 {: .white-title }
 > dom0
@@ -88,9 +59,9 @@ Install the following packages:
 
 - qubes-core-admin-client
 
-{% qubecode fedora-39-admin console %}
+{% qubeconsole fedora-39-admin %}
 $ dnf install --assumeyes qubes-core-admin-client
-{% endqubecode %}
+{% endqubeconsole %}
 
 {: .black-title }
 > fedora-39-admin

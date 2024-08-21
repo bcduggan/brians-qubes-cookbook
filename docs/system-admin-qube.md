@@ -23,27 +23,27 @@ You want to grant system-wide qube administration privileges to a non-**dom0** q
 
 Create admin template, **fedora-39-admin**.
 
-{% qubecode dom0 console %}
+{% qubeconsole dom0 %}
 $ qvm-clone --verbose fedora-39-xfce fedora-39-admin
-{% endqubecode %}
+{% endqubeconsole %}
 
 Add provenance tag to **fedora-39-admin**.
 
-{% qubecode dom0 console  %}
+{% qubeconsole dom0 %}
 $ qvm-tags fedora-39-admin add --verbose cloned-from-fedora-39-xfce 
-{% endqubecode %}
+{% endqubeconsole %}
 
 Create **sys-admin**.
 
-{% qubecode dom0 console  %}
+{% qubeconsole dom0 %}
 $ qvm-create --class AppVM --template fedora-39-xfce --label purple fedora-39-admin
-{% endqubecode %}
+{% endqubeconsole %}
 
 Disable network access on **sys-admin**
 
-{% qubecode dom0 console  %}
+{% qubeconsole dom0 %}
 $ qvm-prefs --verbose --set sys-admin netvm None
-{% endqubecode %}
+{% endqubeconsole %}
  
 
 ## Client
@@ -54,33 +54,33 @@ Install the following packages on **fedora-39-admin**:
 
 - qubes-core-admin-client
 
-{% qubecode fedora-39-admin console %}
+{% qubeconsole fedora-39-admin %}
 $ dnf install --assumeyes qubes-core-admin-client
-{% endqubecode %}
+{% endqubeconsole %}
 
 ## Policies
 
 Allow **sys-policy** to use all global admin RPCs on all qubes, including **dom0**, through **dom0**.
 
-{% qubecode sys-policy policy-include edit_command="$ qubes-policy-editor include/admin-global-rwx" caption="Add to include/admin-global-rwx" %}
+{% qubepolicy sys-policy include/admin-global-rwx %}
 sys-admin  @adminvm  allow  target=dom0
 sys-admin  @anyvm    allow  target=dom0
-{% endqubecode %}
+{% endqubepolicy %}
 
 Allow **sys-policy** to use all local admin RPCs on all qubes, including **dom0**, through **dom0**:
 
-{% qubecode sys-policy policy-include edit_command="$ qubes-policy-editor include/admin-local-rwx" caption="Add to include/admin-local-rwx" %}
+{% qubepolicy sys-policy include/admin-local-rwx %}
 sys-admin  @adminvm  allow  target=dom0
 sys-admin  @anyvm    allow  target=dom0
-{% endqubecode %}
+{% endqubepolicy %}
 
 ## Test
 
 Use _qvm_ tools to administer qubes on **{{ page.qubes.client.app }}**:
 
-{% qubecode sys-admin console %}
+{% qubeconsole sys-admin %}
 $ qvm-ls --all
-{% endqubecode %}
+{% endqubeconsole %}
 
 {% endcontentfor %}
 

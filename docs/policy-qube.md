@@ -14,35 +14,35 @@ You want to grant RPC policy edit privileges to a non-**dom0** qube.
 
 Create **sys-policy**.
 
-{% qubecode dom0 console %}
+{% qubeconsole dom0 %}
 $ qvm-create --verbose --class AppVM --template fedora-39-xfce --label purple sys-policy
-{% endqubecode %}
+{% endqubeconsole %}
 
 Disable **sys-policy** network access.
 
-{% qubecode dom0 console %}
+{% qubeconsole dom0 %}
 $ qvm-prefs --verbose --set sys-policy netvm None
-{% endqubecode %}
+{% endqubeconsole %}
 
 Edit **sys-policy** permissions to edit RPC policies.
 
-{% qubecode dom0 console %}
+{% qubeconsole dom0 %}
 $ qubes-policy-editor include/admin-policy-rwx
-{% endqubecode %}
+{% endqubeconsole %}
 
 Add this line to _include/admin-policy-rwx_:
 
-{% qubecode dom0 plaintext caption="include/admin-policy-rwx" %}
+{% qubepolicy dom0 include/admin-policy-rwx %}
 sys-policy  @adminvm  allow  target=dom0
-{% endqubecode %}
+{% endqubepolicy %}
 
 ## Test
 
 Use **qubes-policy** tools to administer qubes on **sys-policy**.
 
-{% qubecode sys-policy console %}
+{% qubeconsole sys-policy %}
 $ qubes-policy --list
-{% endqubecode %}
+{% endqubeconsole %}
 
 {% endcontentfor %}
 
