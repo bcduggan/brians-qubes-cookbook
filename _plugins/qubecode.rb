@@ -1,11 +1,32 @@
 module BQC
   module Tags
-    module Block
+    class Block < Liquid::Block
       DOUBLE_QUOTED = %r!"[^"\\]*(?:\\.[^"\\]*)*"!.freeze
       SINGLE_QUOTED = %r!'[^'\\]*(?:\\.[^'\\]*)*'!.freeze
       BARE = %r![\w_-]+!.freeze
-      ARGUMENT = %r!#{DOUBLE_QUOTED}|#{SINGLE_QUOTED}|#{BARE}!.freeze
-      PARAM = %r!(#{BARE})\s*=\s*(#{ARGUMENT})!.freeze
+      VALUE = %r!#{DOUBLE_QUOTED}|#{SINGLE_QUOTED}|#{BARE}!.freeze
+      PARAM = %r!(#{BARE})\s*=\s*(#{VALUE})!.freeze
+      PARAMS_STRING = %r!(?<params_string>.*)!.freeze
+
+      def initialize(tag_name, markup, tokens)
+        super
+        matched = markup.match(%r!#{self.class::ARGS}#{PARAMS_STRING}!.freeze)
+        @params_string = matched["params_string"]
+        arg_strings = matched.named_captures.select do |name, string| 
+          name != "params_string"
+        end
+        bare_arg_strings = arg_strings.map do |name, string|
+          [name, unquote_arg(string.strip)]
+        end
+        @args = bare_arg_strings.to_h
+      end
+
+      def render(context)
+        parse_params(context)
+        super
+      end
+
+      private
 
       def markdownify(content, context)
         context.registers[:site].find_converter_instance(
@@ -13,50 +34,51 @@ module BQC
         ).convert(content.to_s).strip
       end
 
-      def parse_params(string)
-        string.scan(PARAM).each_with_object({}) { |(name, argument), hash| hash[name] = argument }
-      end
-
-      def eval_argument(argument, context)
-        case argument
+      def unquote(string)
+        case string
           when DOUBLE_QUOTED
-            argument[1..-2].gsub('\\"', '"')
+            string[1..-2].gsub('\\"', '"')
           when SINGLE_QUOTED
-            argument[1..-2].gsub("\\'", "'")
-          when BARE
-            context[argument]
+            string[1..-2].gsub("\\'", "'")
           else
-            "OH NO BOB"
+            raise StandardError.new "Not a quoted string: \n#{string}"
         end
       end
 
-      def eval_params(context)
-        @params.map { |name, argument| [name, eval_argument(argument, context)] }.to_h
+      def unquote_arg(string)
+        begin
+          unquote(string)
+        rescue StandardError
+          if string.match?(BARE)
+            string
+          else
+            raise Exception.new "Not a bare word or quoted string: \n#{string}"
+          end
+        end
       end
 
-      def pre_initialize(markup)
-        @matched = @markup.strip.match(markup).named_captures.map { |name, string| [name, string.strip] }.to_h
-        #@params = parse_params(@matched["tail"])
+      def eval_param(string, context)
+        begin
+          unquote(string)
+        rescue StandardError
+          if string.match?(BARE)
+            context[string]
+          else
+            raise Exception.new "Not a bare word or quoted string: \n#{string}"
+          end
+        end
       end
 
-      def html_tag_wrap(html_tag, attributes, content)
-        attribute_list = attributes.collect { |name, value| %(#{name}="#{value}") }
-        %(<#{html_tag} #{attribute_list.join(" ")}>#{content}</#{html_tag}>)
+      def html_tag(tag, content, *attributes)
+        attribute_strings = attributes.collect { |name, value| %(#{name}="#{value}") }
+        attributes_string = attribute_strings.length ? " #{attribute_strings.join(' ')}" : ""
+        "<#{tag}#{attributes_string}>#{content}</#{tag}>"
       end
 
-      def pre_render(attribute_keys, context)
-        params = parse_params(@matched["tail"])
-        evaluated_params = eval_params(context)
-        class_attribute = evaluated_params["class"] ? "#{value} #{evaluated_params['class']}" : callout_class
-        attribute = attributes["class"] ? "#{value} #{attributes['class']}" : value
-        @attributes = {
-          **attributes,
-          "class" => attribute
-        }
-        attributes = {
-          **evaluated_params,
-          "class" => class_attribute
-        }
+      def parse_params(context)
+        @params = @params_string.scan(PARAM).each_with_object({}) do |(name, string), hash|
+          hash[name] = eval_param(string.strip, context)
+        end
       end
  
       LEADING_OR_TRAILING_LINE_TERMINATORS = %r!\A(\n|\r)+|(\n|\r)+\z!.freeze
@@ -86,111 +108,97 @@ module BQC
       end
     end
 
-    class HTMLTagBlock < Liquid::Block
-      include Block
-      
-      MARKUP = %r!(?<html_tag>[\w_-]+)(?<tail>.*)!.freeze
-
-      def initialize(tag_name, markup, tokens)
-        super
-        pre_initialize(MARKUP)
-      end
+    class HTMLTagBlock < Block
+      ARGS = %r!(?<html_tag>#{BARE})!.freeze
 
       def render(context)
-        attributes = eval_params(context)
-        html_tag_wrap(@matched["html_tag"], attributes, super.to_s)
-      end
-
-    end
-
-    class BlockquoteBlock < Liquid::Block
-      include Block
-
-      MARKUP = %r!(?<tail>.*)!.freeze
-
-      def initialize(tag_name, markup, tokens)
-        super
-        pre_initialize(MARKUP)
-      end
-
-      def render(context)
-        attributes = eval_params(context)
-        html_tag_wrap("blockquote", attributes, super.to_s)
+        html_tag(@args["html_tag"], super.to_s, id=@params["id"])
       end
     end
 
-    class CalloutBlock < Liquid::Block
-      include Block
+    #class BlockquoteBlock < Liquid::Block
+    #  include Block
 
-      MARKUP = %r!(?<callout>#{ARGUMENT})(?<tail>.*)!.freeze
+    #  MARKUP = %r!(?.*)!.freeze
 
-      def initialize(tag_name, markup, tokens)
-        super
-        pre_initialize(MARKUP)
-      end
+    #  def render(context)
+    #    attributes = eval_params(context)
+    #    html_tag_wrap("blockquote", attributes, super.to_s)
+    #  end
+    #end
 
-      def render(context)
-        evaluated_params = eval_params(context)
-        class_attribute = evaluated_params["class"] ? "#{@matched['callout']} #{evaluated_params['class']}" : callout_class
-        attributes = {
-          **evaluated_params,
-          "class" => class_attribute
-        }
-        content = markdownify(super.to_s, context)
-        html_tag_wrap("blockquote", attributes, content)
-      end
-    end
+    #class CalloutBlock < Liquid::Block
+    #  include Block
 
-    class CalloutTitleBlock < Liquid::Block
-      include Block
+    #  MARKUP = %r!(?<callout>#{ARGUMENT})(?<tail>.*)!.freeze
 
-      MARKUP = %r!(?<callout>#{ARGUMENT})(?<title>(\s+#{ARGUMENT})?)(?<tail>.*)!.freeze
+    #  def initialize(tag_name, markup, tokens)
+    #    super
+    #    pre_initialize(MARKUP)
+    #  end
 
-      def initialize(tag_name, markup, tokens)
-        super
-        pre_initialize(MARKUP)
-      end
+    #  def render(context)
+    #    evaluated_params = eval_params(context)
+    #    class_attribute = evaluated_params["class"] ? "#{@matched['callout']} #{evaluated_params['class']}" : callout_class
+    #    attributes = {
+    #      **evaluated_params,
+    #      "class" => class_attribute
+    #    }
+    #    content = markdownify(super.to_s, context)
+    #    html_tag_wrap("blockquote", attributes, content)
+    #  end
+    #end
 
-      def render(context)
-        evaluated_params = eval_params(context)
-        callout_class = "#{@matched['callout']}-title"
-        class_attribute = evaluated_params["class"] ? "#{callout_class} #{evaluated_params['class']}" : callout_class
-        attributes = {
-          **evaluated_params,
-          "class" => class_attribute
-        }
-        title = markdownify(eval_argument(@matched['title'], context), context)
-        content = markdownify(super.to_s, context)
-        html_tag_wrap("blockquote", attributes, title + content)
-      end
-    end
+    #class CalloutTitleBlock < Liquid::Block
+    #  include Block
 
-    class QubeRunBlock < Liquid::Block
-      include Block
+    #  MARKUP = %r!(?<callout>#{ARGUMENT})(?<title>(\s+#{ARGUMENT})?)(?<tail>.*)!.freeze
 
-      MARKUP = %r!(?<qube>#{ARGUMENT})(?<tail>.*)!.freeze
+    #  def initialize(tag_name, markup, tokens)
+    #    super
+    #    pre_initialize(MARKUP)
+    #  end
 
-      def initialize(tag_name, markup, tokens)
-        super
-        pre_initialize(MARKUP)
-      end
+    #  def render(context)
+    #    evaluated_params = eval_params(context)
+    #    callout_class = "#{@matched['callout']}-title"
+    #    class_attribute = evaluated_params["class"] ? "#{callout_class} #{evaluated_params['class']}" : callout_class
+    #    attributes = {
+    #      **evaluated_params,
+    #      "class" => class_attribute
+    #    }
+    #    title = markdownify(eval_argument(@matched['title'], context), context)
+    #    content = markdownify(super.to_s, context)
+    #    html_tag_wrap("blockquote", attributes, title + content)
+    #  end
+    #end
 
-      def render(context)
-        evaluated_params = eval_params(context)
-        qube_label = context.registers[:site].data["qubes"][@matched["qube"]]["label"]
-        callout_class = "#{qube_label}-title"
-        class_attribute = evaluated_params["class"] ? "#{callout_class} #{evaluated_params['class']}" : callout_class
-        attributes = {
-          **evaluated_params,
-          "class" => class_attribute
-        }
-        title = html_tag_wrap("p", {}, @matched['qube'])
-        code = highlight_render("console", super.to_s, context)
-        caption = html_tag_wrap("figcaption", {}, "Console")
-        content = html_tag_wrap("figure", {"class" => "highlight no-line-numbers"}, code + caption)
-        html_tag_wrap("blockquote", attributes, title + content)
-      end
-    end
+    #class QubeRunBlock < Liquid::Block
+    #  include Block
+
+    #  MARKUP = %r!(?<qube>#{ARGUMENT})(?<tail>.*)!.freeze
+
+    #  def initialize(tag_name, markup, tokens)
+    #    super
+    #    pre_initialize(MARKUP)
+    #  end
+
+    #  def render(context)
+    #    evaluated_params = eval_params(context)
+    #    qube_label = context.registers[:site].data["qubes"][@matched["qube"]]["label"]
+    #    callout_class = "#{qube_label}-title"
+    #    class_attribute = evaluated_params["class"] ? "#{callout_class} #{evaluated_params['class']}" : callout_class
+    #    attributes = {
+    #      **evaluated_params,
+    #      "class" => class_attribute
+    #    }
+    #    title = html_tag_wrap("p", {}, @matched['qube'])
+    #    code = highlight_render("console", super.to_s, context)
+    #    caption = html_tag_wrap("figcaption", {}, "Console")
+    #    content = html_tag_wrap("figure", {"class" => "highlight no-line-numbers"}, code + caption)
+    #    html_tag_wrap("blockquote", attributes, title + content)
+    #  end
+    #end
 
     #class Qube
 
@@ -562,10 +570,10 @@ end
 
 Liquid::Template.register_tag('qubecode', BQC::Tags::QubeBlock)
 Liquid::Template.register_tag('html_tag', BQC::Tags::HTMLTagBlock)
-Liquid::Template.register_tag('blockquote', BQC::Tags::BlockquoteBlock)
-Liquid::Template.register_tag('callout', BQC::Tags::CalloutTitleBlock)
-Liquid::Template.register_tag('callout_title', BQC::Tags::CalloutTitleBlock)
-Liquid::Template.register_tag('quberun', BQC::Tags::QubeRunBlock)
+#Liquid::Template.register_tag('blockquote', BQC::Tags::BlockquoteBlock)
+#Liquid::Template.register_tag('callout', BQC::Tags::CalloutTitleBlock)
+#Liquid::Template.register_tag('callout_title', BQC::Tags::CalloutTitleBlock)
+#Liquid::Template.register_tag('quberun', BQC::Tags::QubeRunBlock)
 #Liquid::Template.register_tag('bilight', BQC::Tags::HighlightBlock)
 #Liquid::Template.register_tag('figure', BQC::Tags::FigureBlock)
 #Liquid::Template.register_tag('code', BQC::Tags::CodeBlock)
