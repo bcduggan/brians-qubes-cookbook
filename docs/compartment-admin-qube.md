@@ -22,9 +22,21 @@ You want to grant local qube administration privileges to a non-**dom0** qube.
 $ mkdir --parents /run/user/1000/demo
 {% endqubecode %}
 
-{% html_tag blockquote id="highlander" %}
+{% html blockquote id="highlander" %}
 I feel heard.
-{% endhtml_tag %}
+{% endhtml %}
+
+{% blockquote id="highlander2" %}
+I feel heard.
+{% endblockquote %}
+
+{% callout black id="highlander3" %}
+I feel alive.
+{% endcallout %}
+
+{% qubeconsole dom0 %}
+$ ls -l /
+{% endqubeconsole %}
 
 ## Provision
 
