@@ -1,57 +1,18 @@
 ---
-nav_order: 4
+nav_order: 60
 title: Compartment admin qube
 slug: compartment-admin-qube
 layout: recipe
-qubes:
-  adminvm: sys-admin
-  target:
-    app: dom0
-  client:
-    app: acme-admin
-    template: fedora-39-admin
+dependencies: system-admin-qube
 ---
 
 {% contentfor problem %}
-You want to grant local qube administration privileges to a non-**dom0** qube.
+You want to administer specific qubes from a non-**dom0** qube.
 {% endcontentfor %}
 
 {% contentfor solution %}
 
-{% qubeconsole dom0 %}
-$ ls -l /
-{% endqubeconsole %}
-
-{% qubepolicy sys-policy /path/to/file %}
-thing1 thing2 thing3
-thing4 thing5 thing6
-{% endqubepolicy %}
-
 ## Provision
-
-{% qubepolicy dom0 include/admin-global-rwx %}
-sys-admin  @adminvm                   allow  target=dom0
-sys-admin  @tag:created-by-sys-admin  allow  target=dom0
-sys-admin  sys-admin                  allow  target=dom0
-{% endqubepolicy %}
-
-{% qubeconsole dom0 %}
-$ qvm-clone --verbose fedora-39-xfce fedora-39-admin
-$ qvm-tags fedora-39-admin add --verbose cloned-from-fedora-39-xfce
-$ qvm-create --verbose --template fedora-39-admin --class AppVM --label purple fedora-39-admin
-{% endqubeconsole %}
-
-{: .white-title }
-> dom0
-> 
-> Create admin template and global admin app qube.
-> 
-> {: .white-title }
->> /usr/bin/bash
-```bash
-{% include qvm/clone.md adminvm=page.qubes.adminvm original="fedora-39-xfce" clone=page.qubes.client.template -%}
-{% include qvm/create.md adminvm=page.qubes.adminvm template="fedora-39-admin" label="purple" class="AppVM" qube=page.qubes.client.template -%}
-```
 
 ## Configure client template
 
@@ -59,12 +20,12 @@ Install the following packages:
 
 - qubes-core-admin-client
 
-{% qubeconsole fedora-39-admin %}
+{% qubeconsole fedora-40-admin %}
 $ dnf install --assumeyes qubes-core-admin-client
 {% endqubeconsole %}
 
 {: .black-title }
-> fedora-39-admin
+> fedora-40-admin
 > 
 ```bash
 dnf install --assumeyes qubes-core-admin-client

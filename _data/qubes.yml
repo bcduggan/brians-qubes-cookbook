@@ -1,23 +1,67 @@
 dom0:
   label: white
-fedora-39-minimal:
+fedora-40-xfce:
   class: TemplateVM
   fromrepo: qubes-templates-itl
   os: fedora
+  label: black
+fedora-40:
+  class: TemplateVM
+  fromrepo: qubes-templates-itl
+  os: fedora
+  label: black
+fedora-40-minimal:
+  class: TemplateVM
+  fromrepo: qubes-templates-itl
+  os: fedora
+  label: black
+debian-12-xfce:
+  class: TemplateVM
+  fromrepo: qubes-templates-itl
+  os: debian
+  label: black
+debian-12:
+  class: TemplateVM
+  fromrepo: qubes-templates-itl
+  os: debian
   label: black
 debian-12-minimal:
   class: TemplateVM
   fromrepo: qubes-templates-itl
   os: debian
   label: black
-fedora-39-admin:
+fedora-40-admin:
   class: TemplateVM
   original: fedora-39-minimal
   label: black
-debian-12-home:
+debian-12-acme-service:
   class: TemplateVM
   original: debian-12-minimal
   label: black
+debian-12-acme-workstation:
+  class: TemplateVM
+  original: debian-12-xfce
+  label: black
+acme-workstation-dvm:
+  template: debian-12-acme-workstation
+  class: AppVM
+  label: blue
+  netvm: None
+  template_for_dispvms: True
+  default_updates_proxy_vm: sys-net
+acme-dev:
+  class: DispVM
+  label: gray
+  template: acme-workstation-dvm
+  netvm: None
+acme-gallery:
+  class: DispVM
+  label: gray
+  template: acme-workstation-dvm
+  netvm: None
+acme-updates-proxy-client:
+  template: debian-12-
+  label: blue
 sys-admin:
   class: AppVM
   template: fedora-39-admin
@@ -26,17 +70,3 @@ sys-policy:
   class: AppVM
   template: fedora-39-admin
   label: purple
-brian-admin:
-  class: AppVM
-  template: fedora-39-admin
-  label: purple
-brian-gnupg-dvm:
-  class: AppVM
-  template: debian-12-home
-  template_for_dispvms: true
-  label: blue
-brian-gnupg:
-  class: DispVM
-  template: brian-gnupg-dvm
-  label: gray
-  servicevm: true

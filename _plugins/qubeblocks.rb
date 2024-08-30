@@ -166,7 +166,7 @@ module BQC
         title = html("p", @args["qube"])
 
         console_caption = html("figcaption", "Edit #{@args["file"]}")
-        console_code = highlight("console", "$ qubes-policy-edit #{@args["file"]}", context)
+        console_code = highlight("console", "$ qubes-policy-editor #{@args["file"]}", context)
         console_figure = html("figure", console_code + console_caption, *{"class" => "highlight no-line-numbers"})
 
         policy_caption = html("figcaption", @args["file"])

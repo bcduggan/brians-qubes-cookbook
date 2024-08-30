@@ -34,6 +34,7 @@ blockquote {
   &.white-title,
   &.black-title,
   &.purple-title,
+  &.blue-title,
   &.gray-title,
   &.yellow-title,
   &.orange-title,
@@ -70,6 +71,10 @@ div.language-console > ::after {
   pre {
     display: none;
   }
+}
+
+footer > p:first-child {
+  font-size: 0.75em
 }
 
 // // dom0-dom0 subcallout title

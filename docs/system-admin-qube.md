@@ -1,73 +1,55 @@
 ---
-nav_order: 3
+nav_order: 50
 title: System admin qube
 slug: system-admin-qube
 layout: recipe
-qubes:
-  adminvm: dom0
-  target:
-    app: dom0
-  client:
-    app: sys-admin
-    template: fedora-39-admin
-policies:
-  30-sys-admin: |-
 ---
 
 {% contentfor problem %}
-You want to grant system-wide qube administration privileges to a non-**dom0** qube.
+You want to administer global parameters from a non-**dom0** qube.
 {% endcontentfor %}
 
 {% contentfor solution %}
 ## Provision
 
-Create admin template, **fedora-39-admin**.
+Create admin template, **fedora-40-admin**.
 
 {% qubeconsole dom0 %}
-$ qvm-clone --verbose fedora-39-xfce fedora-39-admin
+$ qvm-clone --verbose fedora-40-xfce fedora-40-admin
 {% endqubeconsole %}
 
-Add provenance tag to **fedora-39-admin**.
+Add provenance tag to **fedora-40-admin**.
 
 {% qubeconsole dom0 %}
-$ qvm-tags fedora-39-admin add --verbose cloned-from-fedora-39-xfce 
+$ qvm-tags fedora-40-admin add --verbose cloned-from-fedora-40-xfce 
 {% endqubeconsole %}
 
-Create **sys-admin**.
+Create **sys-admin** without network access.
 
 {% qubeconsole dom0 %}
-$ qvm-create --class AppVM --template fedora-39-xfce --label purple fedora-39-admin
+$ qvm-create --class AppVM --template fedora-40-admin --label purple --property netvm= sys-admin
 {% endqubeconsole %}
-
-Disable network access on **sys-admin**
-
-{% qubeconsole dom0 %}
-$ qvm-prefs --verbose --set sys-admin netvm None
-{% endqubeconsole %}
- 
 
 ## Client
 
 ### Template
 
-Install the following packages on **fedora-39-admin**:
+Install Qubes admin packages on **fedora-40-admin**:
 
-- qubes-core-admin-client
-
-{% qubeconsole fedora-39-admin %}
+{% qubeconsole fedora-40-admin %}
 $ dnf install --assumeyes qubes-core-admin-client
 {% endqubeconsole %}
 
 ## Policies
 
-Allow **sys-policy** to use all global admin RPCs on all qubes, including **dom0**, through **dom0**.
+Allow **sys-admin** access to all global admin RPCs on all qubes, including **dom0**, through **dom0**.
 
 {% qubepolicy sys-policy include/admin-global-rwx %}
 sys-admin  @adminvm  allow  target=dom0
 sys-admin  @anyvm    allow  target=dom0
 {% endqubepolicy %}
 
-Allow **sys-policy** to use all local admin RPCs on all qubes, including **dom0**, through **dom0**:
+Allow **sys-admin** access to all local admin RPCs on all qubes, including **dom0**, through **dom0**.
 
 {% qubepolicy sys-policy include/admin-local-rwx %}
 sys-admin  @adminvm  allow  target=dom0
