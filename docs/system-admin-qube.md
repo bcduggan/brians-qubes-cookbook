@@ -1,5 +1,5 @@
 ---
-nav_order: 50
+nav_order: 90
 title: System admin qube
 slug: system-admin-qube
 layout: recipe

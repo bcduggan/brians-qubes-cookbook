@@ -1,13 +1,13 @@
 ---
-nav_order: 32
-title: Configure guix to use updates proxy
-slug: configure-guix-updates-proxy
+nav_order: 35
+title: Allow SSH through updates proxy
+slug: updates-proxy-ssh
 layout: recipe
 service: qubes.UpdatesProxy
 ---
 
 {% contentfor problem %}
-You want to use the guix package manager in an offline qube.
+You want to SSH to remote machines from offline qubes.
 {% endcontentfor %}
 
 {% contentfor solution %}
@@ -25,36 +25,28 @@ Add *updates-proxy-client* tag to **acme-workstation-dvm** for targeting in poli
 $ qvm-tags acme-workstation-dvm add updates-proxy-client
 {% endqubeconsole %}
 
-## Configure
+## Configure service TemplateVM
 
-### Client 
+Allow SSH through updates proxy.
 
-#### Template
-
-Install the **guix** package manager on **debian-12-acme-workstation**.
-
-{% qubeconsole debian-12-acme-workstation %}
-$ apt install guix
+{% qubeconsole fedora-40-xfce %}
+$ vim /etc/tinyproxy/tinyproxy-updates.conf
+# Some package managers fetch source through git. You need SSH and git in some offline qubes.
+ConnectPort 22
 {% endqubeconsole %}
 
-#### AppVM
+## Configure workstation TemplateVM
 
-Persist **guix** directories.
+Install netcat.
 
 {% qubeconsole debian-12-acme-workstation %}
-$ mkdir --parents /rw/config/qubes-bind-dirs.d
-$ vim /rw/config/qubes-bind-dirs.d/50_user.conf
-binds+=( '/gnu' )
-binds+=( '/etc/systemd/system/guix-daemon.service.d' )
+$ apt install netcat
 {% endqubeconsole %}
 
-Create *updates-proxy-forwarder.conf* to modify the environment for **guix-daemon**.
+## Test
 
-{% qubeconsole debian-12-acme-workstation %}
-$ vim /etc/systemd/system/guix-daemon.service.d/updates-proxy-forwarder.conf
-[Service]
-Environment="http_proxy=http://127.0.0.1:8082"
-Environment="https_proxy=https://127.0.0.1:8082"
+{% qubeconsole acme-workstation-dvm %}
+$ ssh -T -o ProxyCommand='nc -X connect -x 127.0.0.1:8082 %h %p' git@github.com
 {% endqubeconsole %}
 
 ## Policies

@@ -1,5 +1,5 @@
 ---
-nav_order: 60
+nav_order: 100
 title: Compartment admin qube
 slug: compartment-admin-qube
 layout: recipe

@@ -1,5 +1,5 @@
 ---
-nav_order: 40
+nav_order: 80
 title: Policy qube
 slug: policy-qube
 layout: recipe

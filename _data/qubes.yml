@@ -42,23 +42,48 @@ debian-12-acme-workstation:
   class: TemplateVM
   original: debian-12-xfce
   label: black
+acme-service-dvm:
+  template: debian-12-acme-workstation
+  class: AppVM
+  label: blue
+  netvm:
+  template_for_dispvms: True
 acme-workstation-dvm:
   template: debian-12-acme-workstation
   class: AppVM
   label: blue
-  netvm: None
+  netvm:
   template_for_dispvms: True
-  default_updates_proxy_vm: sys-net
 acme-dev:
   class: DispVM
   label: gray
   template: acme-workstation-dvm
-  netvm: None
+  netvm:
 acme-gallery:
   class: DispVM
   label: gray
   template: acme-workstation-dvm
-  netvm: None
+  netvm:
+acme-nfs:
+  class: DispVM
+  label: gray
+  template: acme-service-dvm
+  netvm:
+acme-keys:
+  class: DispVM
+  label: purple
+  template: acme-service-dvm
+  netvm:
+acme-rclone:
+  class: DispVM
+  label: yellow
+  template: acme-service-dvm
+  netvm:
+acme-secrets:
+  class: DispVM
+  label: purple 
+  template: acme-service-dvm
+  netvm:
 acme-updates-proxy-client:
   template: debian-12-
   label: blue
